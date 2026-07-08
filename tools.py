@@ -31,61 +31,73 @@ def save_task(tasks):
         return json.dump(tasks,f,indent=4)
 
 @tool(args_schema=NoteSchema)
-def note_manage(action:str, note:str="") -> str:
-    """If asked to add notes then add and if asked to view notes show notes"""
+def note_add(note:str) -> str:
+    """Add the notes"""
     try:
-        logger.info(f"Note enabled: action:{action}, note:{note}")
-        if action.lower() == "add":
-            notes = load_notes()
-            logger.info("Notes loaded")
-            notes.append({
-                "id":len(notes) + 1,
-                "note":note,
-            })
-            save_notes(notes)
-            logger.info("Notes saved")
-            return {"Agent":"Note saved"}
-        elif action.lower() == "view":
-            notes = load_notes()
-            logger.info("Notes loaded")
-            if not notes:
-                return []
-            
-            print("\n".join(f"{i+1}. {note['note']}" for i, note in enumerate(notes)))
+        logger.info(f"Note enabled: ")
+        notes = load_notes()
+        logger.info("Notes loaded")
+        notes.append({
+            "id":len(notes) + 1,
+            "note":note,
+        })
+        save_notes(notes)
+        logger.info("Notes saved")
+        print("Agent: Note saved!")
     except Exception as e:
         logger.warning(f"Exception occured: {str(e)}")
         print("Exception occurred")
 
-@tool(args_schema=TaskSchema)
-def task_manage(action:str, task:str) -> str:
-    """Add the task or view the task"""
-    try:
-        logger.info(f"Task tool enabled: action:{action} tasks:{task}")
-        if action.lower() == "add":
-            tasks = load_tasks()
-            logger.info("Task loaded")
-            tasks.append({
-                "id":len(tasks) + 1,
-                "task":task,
-                "status":"pending"
-            })
-            save_task(tasks)
-            logger.info("Tasks saved")
-            print("Agent: Task added successfully!")
-        elif action.lower() == "view":
-            tasks = load_tasks()
-            logger.info(f"Tasks loaded..{tasks}")
-            if not tasks:
-                logger.warning("Tasks not found")
+@tool(args_schema=NoteSchema)
+def note_view(note:str="") -> str:
+        """View the notes"""
+        try:
+            logger.info(f"Tool view task enabled: ")
+            notes = load_notes()
+            logger.info("Notes loaded")
+            if not notes:
                 return []
-            
-            print("\n".join(f"{i+1}. {task['task']}" for i, task in enumerate(tasks)))
+            print("\n".join(f"{i+1}. {note['note']}" for i, note in enumerate(notes)))
+        except Exception as e:
+            logger.warning(f"Exception occurred: {str(e)}")
+            print("Exception occurred!")
+
+@tool(args_schema=TaskSchema)
+def task_add(task:str, task_id:int="") -> str:
+    """Add the task"""
+    try:
+        logger.info(f"Task tool enabled:")
+        tasks = load_tasks()
+        logger.info("Task loaded")
+        tasks.append({
+            "id":len(tasks) + 1,
+            "task":task,
+            "status":"pending"
+        })
+        save_task(tasks)
+        logger.info("Tasks saved")
+        print("Agent: Task added successfully!")
     except FileNotFoundError as e:
         logger.warning(f"File not found: {str(e)}")
         print("File not found")
     except Exception as e:
         logger.warning(f"Exception occurred: {str(e)}")
         print("Exception occurred")
+
+@tool
+def task_view(_:str=""):
+    """View the task"""
+    try:
+        logger.info(f"Task view enabled: ")
+        tasks = load_tasks()
+        logger.info(f"Tasks loaded..{tasks}")
+        if not tasks:
+            logger.warning("Tasks not found")
+            return []
+        
+        print("\n".join(f"{i+1}. {task['task']}" for i, task in enumerate(tasks)))
+    except Exception as e:
+        logger.warning(f"Exception occurred: {str(e)}")
 
 @tool()
 def task_status(task_id:int) -> str:
