@@ -32,6 +32,7 @@ langfuse = get_client()
 langfuse_handler = CallbackHandler()
 
 query = input("User: ")
+logger.info(f"Users query: {query}")
 response = agent.invoke({
     'messages':[{
         'role':'user',
@@ -42,3 +43,5 @@ config={
     'callbacks':[langfuse_handler]
 }
 )
+
+langfuse.flush()
