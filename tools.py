@@ -111,15 +111,15 @@ def task_view(_:str="") -> str:
 def task_status(task:str) -> str:
     """Match the task user entered with the task available in file and change its status"""
     try:
-        logger.info("task_status tool enabled for task: %s", task)
+        logger.info("task_status tool enabled for task: ", task)
         tasks = load_tasks()
         for t in tasks:
             if task.lower() in t["task"].lower():
                 t["status"] = "completed"
                 save_task(tasks)
-                logger.info("Task status updated for task id %d", t["id"])
+                logger.info("Task status updated for task id: ", t["id"])
                 return f"Task '{t['task']}' marked as completed."
-        logger.info("No matching task found for: %s", task)
+        logger.info("No matching task found for: ", task)
         return "No matching task found."
     except Exception:
         logger.exception("Failed to update task status")
