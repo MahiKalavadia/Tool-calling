@@ -19,7 +19,6 @@ def load_notes():
     
 def save_notes(notes):
     with open(NOTES_DIR,"w") as f:
-        logger.info("Saving notes..")
         json.dump(notes, f, indent=4)
 
 def load_tasks():
