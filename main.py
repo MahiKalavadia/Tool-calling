@@ -51,7 +51,7 @@ try:
         }
     )
     logger.info("Agent responded successfully")
-    logger.debug("Agent response: ", response)
+    print(f"Assistant: {response['messages'][-1].content}")
 except Exception as e:
     logger.warning(f"Exception: {str(e)}")
 finally:
