@@ -3,9 +3,8 @@ from typing import Optional
 
 
 class NoteSchema(BaseModel):
-    action: str
-    note: str
+    note: Optional[str] = None
 
 class TaskSchema(BaseModel):
-    action: str
-    task: str
+    task: Optional[str] = None
+    task_id: Optional[int] = None
