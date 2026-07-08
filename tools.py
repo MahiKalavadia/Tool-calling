@@ -12,23 +12,29 @@ def load_notes():
         return []
     
     with open(NOTES_DIR,"r") as f:
-        return json.load(f)
+        content = f.read().strip()
+        if not content:
+            return []
+        return json.loads(content)
     
 def save_notes(notes):
     with open(NOTES_DIR,"w") as f:
-        logger.info(f"Saving notes..")
-        return json.dump(notes,f,indent=4)
+        logger.info("Saving notes..")
+        json.dump(notes, f, indent=4)
 
 def load_tasks():
     if not os.path.exists(TASKS_DIR):
        return []
 
     with open(TASKS_DIR,"r") as f:
-        return json.load(f)
+        content = f.read().strip()
+        if not content:
+            return []
+        return json.loads(content)
     
 def save_task(tasks):
     with open(TASKS_DIR,"w") as f:
-        return json.dump(tasks,f,indent=4)
+        json.dump(tasks, f, indent=4)
 
 @tool(args_schema=NoteSchema)
 def note_add(note:str) -> str:
@@ -36,7 +42,7 @@ def note_add(note:str) -> str:
     try:
         logger.info("note_add tool enabled")
         notes = load_notes()
-        logger.debug("Loaded existing notes", len(notes))
+        logger.debug(f"Loaded existing notes: {len(notes)}")
         notes.append({
             "id": len(notes) + 1,
             "note": note,
@@ -45,19 +51,19 @@ def note_add(note:str) -> str:
         logger.info("Note added successfully")
         return "Note saved successfully."
     except FileNotFoundError as e:
-        logger.warning("Note file not found: ", e)
+        logger.warning(f"Note file not found: {e}")
         return "Note file not found."
-    except Exception:
-        logger.warning("Failed to add note")
+    except Exception as e:
+        logger.warning(f"Failed to add note: {e}")
         return "An error occurred while saving the note."
 
-@tool(args_schema=NoteSchema)
-def note_view(note:str="") -> str:
+@tool
+def note_view() -> str:
     """View the notes"""
     try:
         logger.info("note_view tool enabled")
         notes = load_notes()
-        logger.debug("Loaded notes", len(notes))
+        logger.debug(f"Loaded notes: {len(notes)}")
         if not notes:
             logger.info("No notes found")
             return "No notes found."
@@ -65,10 +71,10 @@ def note_view(note:str="") -> str:
         logger.info("Notes retrieved successfully")
         return formatted_notes
     except FileNotFoundError as e:
-        logger.warning("Note file not found: ", e)
+        logger.warning(f"Note file not found: {e}")
         return "Note file not found."
-    except Exception:
-        logger.warning("Failed to view notes")
+    except Exception as e:
+        logger.warning(f"Failed to view notes: {e}")
         return "An error occurred while retrieving notes."
 
 @tool(args_schema=TaskSchema)
@@ -77,7 +83,7 @@ def task_add(task:str) -> str:
     try:
         logger.info("task_add tool enabled")
         tasks = load_tasks()
-        logger.debug("Loaded existing tasks", len(tasks))
+        logger.debug(f"Loaded existing tasks: {len(tasks)}")
         tasks.append({
             "id": len(tasks) + 1,
             "task": task,
@@ -87,10 +93,10 @@ def task_add(task:str) -> str:
         logger.info("Task added successfully")
         return "Task added successfully."
     except FileNotFoundError as e:
-        logger.warning("Task file not found: ", e)
+        logger.warning(f"Task file not found: {e}")
         return "Task file not found."
-    except Exception:
-        logger.exception("Failed to add task")
+    except Exception as e:
+        logger.exception(f"Failed to add task: {e}")
         return "An error occurred while saving the task."
 
 @tool
@@ -99,7 +105,7 @@ def task_view(_:str="") -> str:
     try:
         logger.info("task_view tool enabled")
         tasks = load_tasks()
-        logger.debug("Loaded tasks", len(tasks))
+        logger.debug(f"Loaded tasks: {len(tasks)}")
         if not tasks:
             logger.info("No tasks found")
             return "No tasks found."
@@ -107,26 +113,26 @@ def task_view(_:str="") -> str:
         logger.info("Tasks retrieved successfully")
         return formatted_tasks
     except FileNotFoundError as e:
-        logger.warning("Task file not found: ", e)
+        logger.warning(f"Task file not found: {e}")
         return "Task file not found."
-    except Exception:
-        logger.exception("Failed to view tasks")
+    except Exception as e:
+        logger.exception(f"Failed to view tasks: {e}")
         return "An error occurred while retrieving tasks."
 
 @tool(args_schema=TaskSchema)
 def task_status(task:str) -> str:
     """Match the task user entered with the task available in file and change its status"""
     try:
-        logger.info("task_status tool enabled for task: ", task)
+        logger.info(f"task_status tool enabled for task: {task}")
         tasks = load_tasks()
         for t in tasks:
             if task.lower() in t["task"].lower():
                 t["status"] = "completed"
                 save_task(tasks)
-                logger.info("Task status updated for task id: ", t["id"])
+                logger.info(f"Task status updated for task id: {t['id']}")
                 return f"Task '{t['task']}' marked as completed."
-        logger.info("No matching task found for: ", task)
+        logger.info(f"No matching task found for: {task}")
         return "No matching task found."
-    except Exception:
-        logger.exception("Failed to update task status")
+    except Exception as e:
+        logger.exception(f"Failed to update task status: {e}")
         return "An error occurred while updating task status."
