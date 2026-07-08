@@ -1,4 +1,11 @@
 from pydantic import BaseModel
+from typing import Optional
 
-class Response(BaseModel):
-    bot: str
+
+class NoteSchema(BaseModel):
+    action: str
+    note: str
+
+class TaskSchema(BaseModel):
+    action: str
+    task: str
