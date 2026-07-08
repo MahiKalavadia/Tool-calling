@@ -34,84 +34,93 @@ def save_task(tasks):
 def note_add(note:str) -> str:
     """Add the notes"""
     try:
-        logger.info(f"Note enabled: ")
+        logger.info("note_add tool enabled")
         notes = load_notes()
-        logger.info("Notes loaded")
+        logger.debug("Loaded %d existing notes", len(notes))
         notes.append({
-            "id":len(notes) + 1,
-            "note":note,
+            "id": len(notes) + 1,
+            "note": note,
         })
         save_notes(notes)
-        logger.info("Notes saved")
-        print("Agent: Note saved!")
-    except Exception as e:
-        logger.warning(f"Exception occured: {str(e)}")
-        print("Exception occurred")
+        logger.info("Note added successfully")
+        return "Note saved successfully."
+    except Exception:
+        logger.exception("Failed to add note")
+        return "An error occurred while saving the note."
 
 @tool(args_schema=NoteSchema)
 def note_view(note:str="") -> str:
-        """View the notes"""
-        try:
-            logger.info(f"Tool view task enabled: ")
-            notes = load_notes()
-            logger.info("Notes loaded")
-            if not notes:
-                return []
-            print("\n".join(f"{i+1}. {note['note']}" for i, note in enumerate(notes)))
-        except Exception as e:
-            logger.warning(f"Exception occurred: {str(e)}")
-            print("Exception occurred!")
+    """View the notes"""
+    try:
+        logger.info("note_view tool enabled")
+        notes = load_notes()
+        logger.debug("Loaded %d notes", len(notes))
+        if not notes:
+            logger.info("No notes found")
+            return "No notes found."
+        formatted_notes = "\n".join(f"{i+1}. {note['note']}" for i, note in enumerate(notes))
+        logger.info("Notes retrieved successfully")
+        return formatted_notes
+    except Exception:
+        logger.exception("Failed to view notes")
+        return "An error occurred while retrieving notes."
 
 @tool(args_schema=TaskSchema)
-def task_add(task:str, task_id:int="") -> str:
+def task_add(task:str) -> str:
     """Add the task"""
     try:
-        logger.info(f"Task tool enabled:")
+        logger.info("task_add tool enabled")
         tasks = load_tasks()
-        logger.info("Task loaded")
+        logger.debug("Loaded %d existing tasks", len(tasks))
         tasks.append({
-            "id":len(tasks) + 1,
-            "task":task,
-            "status":"pending"
+            "id": len(tasks) + 1,
+            "task": task,
+            "status": "pending"
         })
         save_task(tasks)
-        logger.info("Tasks saved")
-        print("Agent: Task added successfully!")
+        logger.info("Task added successfully")
+        return "Task added successfully."
     except FileNotFoundError as e:
-        logger.warning(f"File not found: {str(e)}")
-        print("File not found")
-    except Exception as e:
-        logger.warning(f"Exception occurred: {str(e)}")
-        print("Exception occurred")
+        logger.warning("Task file not found: %s", e)
+        return "Task file not found."
+    except Exception:
+        logger.exception("Failed to add task")
+        return "An error occurred while saving the task."
 
 @tool
-def task_view(_:str=""):
+def task_view(_:str="") -> str:
     """View the task"""
     try:
-        logger.info(f"Task view enabled: ")
+        logger.info("task_view tool enabled")
         tasks = load_tasks()
-        logger.info(f"Tasks loaded..{tasks}")
+        logger.debug("Loaded %d tasks", len(tasks))
         if not tasks:
-            logger.warning("Tasks not found")
-            return []
-        
-        print("\n".join(f"{i+1}. {task['task']}" for i, task in enumerate(tasks)))
-    except Exception as e:
-        logger.warning(f"Exception occurred: {str(e)}")
+            logger.info("No tasks found")
+            return "No tasks found."
+        formatted_tasks = "\n".join(f"{i+1}. {task['task']}" for i, task in enumerate(tasks))
+        logger.info("Tasks retrieved successfully")
+        return formatted_tasks
+    except FileNotFoundError as e:
+        logger.warning("Task file not found: %s", e)
+        return "Task file not found."
+    except Exception:
+        logger.exception("Failed to view tasks")
+        return "An error occurred while retrieving tasks."
 
-@tool()
-def task_status(task_id:int) -> str:
-    """Change the status of the already present tasks"""
+@tool(args_schema=TaskSchema)
+def task_status(task:str) -> str:
+    """Match the task user entered with the task available in file and change its status"""
     try:
+        logger.info("task_status tool enabled for task: %s", task)
         tasks = load_tasks()
-        logger.info("Tasks loaded..")
         for t in tasks:
-            if t["id"] == task_id:
+            if task.lower() in t["task"].lower():
                 t["status"] = "completed"
                 save_task(tasks)
-                logger.info("Task saved..")
-
-        return {"Agent":"Status changed"}
-    except Exception as e:
-        logger.warning(f"Exception occurred: {str(e)}")
-        print("Exception occurred")
+                logger.info("Task status updated for task id %d", t["id"])
+                return f"Task '{t['task']}' marked as completed."
+        logger.info("No matching task found for: %s", task)
+        return "No matching task found."
+    except Exception:
+        logger.exception("Failed to update task status")
+        return "An error occurred while updating task status."
