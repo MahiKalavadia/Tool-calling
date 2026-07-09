@@ -1,11 +1,16 @@
 from langchain_core.tools import tool
 import json
 import logging
+from langchain_groq import ChatGroq
 import os
 from schema import NoteSchema, TaskSchema
+from langchain_core.messages import HumanMessage
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
-
+llm = ChatGroq(model="llama-3.3-70b-versatile")
 NOTES_FILE = "notes1.json"
 TASKS_FILE = "tasks1.json"
 
@@ -119,28 +124,65 @@ def task_view(_: str = "") -> str:
         return "An error occurred while retrieving tasks."
 
 @tool(args_schema=TaskSchema)
-def change_task_status(task:str) -> str:
-    """Mark an existing task as completed.
+def change_task_status(task: str) -> dict:
+    """
+    Mark an existing task as completed.
 
-    The task parameter should be the task name or part of it, used to
-    identify which task to mark as completed. It should be the normalized
-    task name extracted by the LLM."""
+    This tool should be used only when the user indicates they have completed
+    or finished a previously created task.
+
+    Workflow:
+    1. Load all existing tasks.
+    2. Send the user's statement and task list to the LLM.
+    3. The LLM identifies the best matching task ID.
+    4. Update that task's status to 'completed'.
+    """
+
     try:
-        logger.info(f"task_status tool enabled for task: {task}")
+        logger.info(f"Finding task for: {task}")
         tasks = load_tasks()
         if not tasks:
-            return "No tasks found"
-        
+            return "No tasks found."
+
+        prompt = f"""
+            You are a task matching assistant.
+
+            User statement:
+            "{task}"
+
+            Existing tasks:
+            {json.dumps(tasks, indent=2)}
+
+            Instructions:
+            - Identify the task that best matches the user's statement.
+            - Return ONLY the task ID as an integer.
+            - If no task matches, return -1.
+            - Do not explain your answer.
+            """
+
+        llm_response = llm.invoke([HumanMessage(content=prompt)])
+        task_id = int(llm_response.content.strip())
+        if task_id == -1:
+            return "No matching task found."
+
         for t in tasks:
-            if task.lower().strip() in t["task"].lower().strip():
+            if t["id"] == task_id:
                 if t["status"] == "completed":
-                    return "Task is already completed"
+                    return "Task is already completed."
+
                 t["status"] = "completed"
                 save_tasks(tasks)
-                logger.info(f"Task status updated for task id: {t['id']}")
+
+                logger.info(f"Task {task_id} marked as completed.")
+
                 return "Task marked as completed."
-        logger.info(f"No matching task found for: {task}")
-        return "No matching task found."
+
+        return "Task ID returned by LLM does not exist."
+
+    except ValueError:
+        logger.exception("LLM did not return a valid integer.")
+        return "Failed to identify the task."
+
     except Exception as e:
-        logger.exception(f"Failed to update task status: {e}")
-        return "An error occurred while updating task status."
+        logger.exception(f"Failed to update task status. {str(e)}")
+        return "Internal server error."
