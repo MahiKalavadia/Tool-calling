@@ -73,7 +73,7 @@ def note_add(note: str) -> str:
 
 @tool()
 def note_view(_: str = "") -> str:
-    """View all notes."""
+    """Load all the notes available"""
     try:
         logger.info("note_view tool called")
         notes = load_notes()
@@ -109,7 +109,7 @@ def task_add(task: str) -> str:
 
 @tool()
 def task_view(_: str = "") -> str:
-    """View all tasks."""
+    """Load all the tasks present."""
     try:
         logger.info("task_view tool called")
         tasks = load_tasks()
@@ -156,7 +156,6 @@ def change_task_status(task: str) -> dict:
             Instructions:
             - Identify the task that best matches the user's statement.
             - Return ONLY the task ID as an integer.
-            - If no task matches, return -1.
             - Do not explain your answer.
             """
 
