@@ -63,7 +63,7 @@ def note_add(note:str) -> str:
         logger.exception(f"Failed to add note: {e}")
         return "An error occurred while saving the note."
 
-@tool()
+@tool(args_schema=NoteSchema)
 def note_view(_:str="") -> dict:
     """Only View the notes"""
     try:
@@ -73,7 +73,6 @@ def note_view(_:str="") -> dict:
         if not notes:
             logger.info("No notes found")
             return "No notes found."
-        formatted_notes = "\n".join(f"{i+1}. {note['note']}" for i, note in enumerate(notes))
         logger.info("Notes retrieved successfully")
         return {
             "note": notes
@@ -109,7 +108,7 @@ def task_add(task:str) -> str:
         logger.exception(f"Failed to add task: {e}")
         return "An error occurred while saving the task."
 
-@tool()
+@tool(args_schema=TaskSchema)
 def task_view(_:str="") -> dict:
     """Only view the task"""
     try:
@@ -119,7 +118,6 @@ def task_view(_:str="") -> dict:
         if not tasks:
             logger.info("No tasks found")
             return "No tasks found."
-        # formatted_tasks = "\n".join(f"{i+1}. {task['task']} - {task['status']}" for i, task in enumerate(tasks))
         logger.info("Tasks retrieved successfully")
         return {
             "task":tasks
