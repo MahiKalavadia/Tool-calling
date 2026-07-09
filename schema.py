@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import Optional, List
+from typing import Optional, List, Any
 
 
 class NoteSchema(BaseModel):
@@ -12,7 +12,7 @@ class ChatRequest(BaseModel):
     query: str
 
 class ChatResponse(BaseModel):
-    response: str
+    response: Any
 
 class Note(BaseModel):
     id: int
@@ -28,9 +28,3 @@ class Task(BaseModel):
 
 class TaskViewSchema(BaseModel):
     task: List[Task]
-
-class abc(BaseModel):
-    id: Optional[int] = Field(None, description="The ID of the item")
-    note: Optional[str] = Field(None, description="The note content")
-    task: Optional[str] = Field(None, description="The task content")
-    status: Optional[str] = Field(None, description="The status of the task")

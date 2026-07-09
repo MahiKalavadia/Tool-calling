@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from agents import agent
 from langfuse import get_client
 from langfuse.langchain import CallbackHandler
+from datetime import datetime, time
 
 load_dotenv()
 
@@ -52,8 +53,8 @@ def home():
 @app.post("/chat", response_model=ChatResponse)
 def chat(request: ChatRequest):
     try:
+        start_time = datetime.now()
         logger.info(f"User Query: {request.query}")
-
         response = agent.invoke(
             {
                 "messages": [
@@ -67,20 +68,18 @@ def chat(request: ChatRequest):
                 "callbacks": [langfuse_handler]
             },
         )
-
-        answer = response["messages"][-1].content
-
+        logger.info(f"Agent Response: {response}")
+        answer = response["messages"][2].content
         logger.info("Agent responded successfully")
-
+        logger.info(f"Agent Response: {answer}")
+        end_time = datetime.now()
+        logger.info(f"Latency time: {(end_time - start_time).total_seconds()} seconds")
+        token_usage = response["messages"][-1].usage_metadata
+        logger.info(f"Total token used: {token_usage}")
         return ChatResponse(response=answer)
-
     except Exception as e:
         logger.exception("Error while invoking agent")
-        raise HTTPException(
-            status_code=500,
-            detail=str(e),
-        )
-
+        raise HTTPException(status_code=500,detail=str(e))
     finally:
         try:
             langfuse.flush()
