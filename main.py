@@ -69,16 +69,24 @@ def chat(request: ChatRequest):
             },
         )
         logger.info(f"Agent Response: {response}")
-        answer = response["messages"][2].content
         logger.info("Agent responded successfully")
+        answer = response["messages"]
         logger.info(f"Agent Response: {answer}")
         end_time = datetime.now()
         logger.info(f"Latency time: {(end_time - start_time).total_seconds()} seconds")
         token_usage = response["messages"][-1].usage_metadata
         logger.info(f"Total token used: {token_usage}")
-        return ChatResponse(response=answer)
+        tool_message = next((m for m in reversed(answer) if m.type == "tool"), None)
+
+        if tool_message:
+            return ChatResponse(response=tool_message.content)
+
+        ai_message = next((m for m in reversed(answer) if m.type == "ai"), None)
+        
+        return ChatResponse(response=ai_message.content)
+    
     except Exception as e:
-        logger.exception("Error while invoking agent")
+        logger.error(f"Error while invoking agent, error:- {str(e)}")
         raise HTTPException(status_code=500,detail=str(e))
     finally:
         try:
