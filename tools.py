@@ -135,7 +135,7 @@ def change_task_status(task: str) -> dict:
     Mark an existing task as completed.
 
     This tool should be used only when the user indicates they have completed
-    or finished a previously created task.
+    or finished a previously created task or it is like a statement in past tense .
 
     Workflow:
     1. Load all existing tasks.
@@ -190,4 +190,4 @@ def change_task_status(task: str) -> dict:
 
     except Exception as e:
         logger.error(f"Failed to update task status. {str(e)}")
-        return "Internal server error."
+        return "Failed to update task status"
