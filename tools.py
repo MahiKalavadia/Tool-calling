@@ -11,9 +11,9 @@ load_dotenv()
 
 logger = logging.getLogger(__name__)
 llm = ChatGroq(model="llama-3.3-70b-versatile")
-NOTES_FILE = "notes1.json"
-TASKS_FILE = "tasks1.json"
 
+NOTES_FILE = "notes.json"
+TASKS_FILE = "tasks.json"
 
 def load_notes():
     if not os.path.exists(NOTES_FILE):

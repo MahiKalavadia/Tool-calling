@@ -1,13 +1,13 @@
 import os
 import logging
 from datetime import datetime
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from schema import ChatRequest, ChatResponse
 from dotenv import load_dotenv
 from agents import agent
 from langfuse import get_client
 from langfuse.langchain import CallbackHandler
-from datetime import datetime, time
+from datetime import datetime
 
 load_dotenv()
 
