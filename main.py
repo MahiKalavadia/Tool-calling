@@ -76,14 +76,8 @@ def chat(request: ChatRequest):
         logger.info(f"Latency time: {(end_time - start_time).total_seconds()} seconds")
         token_usage = response["messages"][-1].usage_metadata
         logger.info(f"Total token used: {token_usage}")
-        tool_message = next((m for m in reversed(answer) if m.type == "tool"), None)
 
-        if tool_message:
-            return ChatResponse(response=tool_message.content)
-
-        ai_message = next((m for m in reversed(answer) if m.type == "ai"), None)
-        
-        return ChatResponse(response=ai_message.content)
+        return ChatResponse(response=response["messages"][-1].content)
     
     except Exception as e:
         logger.error(f"Error while invoking agent, error:- {str(e)}")
