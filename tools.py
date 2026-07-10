@@ -12,14 +12,20 @@ load_dotenv()
 logger = logging.getLogger(__name__)
 llm = ChatGroq(model="llama-3.3-70b-versatile")
 
-NOTES_FILE = "notes.json"
-TASKS_FILE = "tasks.json"
+NOTES_DIRS = "notes"
+TASKS_DIRS = "tasks"
+
+os.makedirs(NOTES_DIRS, exist_ok=True)
+os.makedirs(TASKS_DIRS, exist_ok=True)
+
+note_filename = "notes.json"
+task_filename = "tasks.json"
 
 def load_notes():
-    if not os.path.exists(NOTES_FILE):
+    if not os.path.exists(os.path.join(NOTES_DIRS, note_filename)):
         return []
     try:
-        with open(NOTES_FILE, "r") as f:
+        with open(os.path.join(NOTES_DIRS, note_filename), "r") as f:
             content = f.read().strip()
         if not content:
             return []
@@ -30,15 +36,15 @@ def load_notes():
 
 
 def save_notes(notes):
-    with open(NOTES_FILE, "w") as f:
+    with open(os.path.join(NOTES_DIRS, note_filename), "w") as f:
         json.dump(notes, f, indent=4)
 
 
 def load_tasks():
-    if not os.path.exists(TASKS_FILE):
+    if not os.path.exists(os.path.join(TASKS_DIRS, task_filename)):
         return []
     try:
-        with open(TASKS_FILE, "r") as f:
+        with open(os.path.join(TASKS_DIRS, task_filename), "r") as f:
             content = f.read().strip()
         if not content:
             return []
@@ -49,7 +55,7 @@ def load_tasks():
 
 
 def save_tasks(tasks):
-    with open(TASKS_FILE, "w") as f:
+    with open(os.path.join(TASKS_DIRS, task_filename), "w") as f:
         json.dump(tasks, f, indent=4)
 
 
