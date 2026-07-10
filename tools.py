@@ -67,7 +67,7 @@ def note_add(note: str) -> str:
         logger.info("Note added successfully")
         return "Note saved successfully!"
     except Exception as e:
-        logger.exception(f"Failed to add note: {e}")
+        logger.error(f"Failed to add note: {str(e)}")
         return "An error occurred while saving the note."
 
 
@@ -84,7 +84,7 @@ def note_view(_: str = "") -> str:
         )
         return formatted_notes
     except Exception as e:
-        logger.exception(f"Failed to view notes: {e}")
+        logger.error(f"Failed to view notes: {str(e)}")
         return "An error occurred while retrieving notes."
 
 
@@ -103,7 +103,7 @@ def task_add(task: str) -> str:
         logger.info("Task added successfully")
         return "Task saved successfully!"
     except Exception as e:
-        logger.exception(f"Failed to add task: {e}")
+        logger.error(f"Failed to add task: {str(e)}")
         return "An error occurred while saving the task."
 
 
@@ -120,7 +120,7 @@ def task_view(_: str = "") -> str:
         )
         return formatted_tasks
     except Exception as e:
-        logger.exception(f"Failed to view tasks: {e}")
+        logger.error(f"Failed to view tasks: {str(e)}")
         return "An error occurred while retrieving tasks."
 
 @tool(args_schema=TaskSchema)
@@ -179,9 +179,9 @@ def change_task_status(task: str) -> dict:
         return "Task ID returned by LLM does not exist."
 
     except ValueError:
-        logger.exception("LLM did not return a valid integer.")
+        logger.error("LLM did not return a valid integer.")
         return "Failed to identify the task."
 
     except Exception as e:
-        logger.exception(f"Failed to update task status. {str(e)}")
+        logger.error(f"Failed to update task status. {str(e)}")
         return "Internal server error."
