@@ -81,7 +81,7 @@ def chat(request: ChatRequest):
     
     except Exception as e:
         logger.error(f"Error while invoking agent, error:- {str(e)}")
-        raise HTTPException(status_code=500,detail=str(e))
+        return "An error occurred while invoking the agent."
     finally:
         try:
             langfuse.flush()
