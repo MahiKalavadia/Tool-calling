@@ -7,7 +7,6 @@ from dotenv import load_dotenv
 from agents import agent
 from langfuse import get_client
 from langfuse.langchain import CallbackHandler
-from datetime import datetime
 
 load_dotenv()
 
@@ -81,7 +80,7 @@ def chat(request: ChatRequest):
     
     except Exception as e:
         logger.error(f"Error while invoking agent, error:- {str(e)}")
-        return "An error occurred while invoking the agent."
+        return ChatResponse(response="Sorry, I'm facing a temporary issue. Please try again.")
     finally:
         try:
             langfuse.flush()

@@ -3,7 +3,7 @@ from typing import Optional, List, Any
 
 
 class NoteSchema(BaseModel):
-    note: Optional[str] = None
+    note: str
 
 class TaskSchema(BaseModel):
     task: str
